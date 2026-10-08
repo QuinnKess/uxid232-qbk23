@@ -2,7 +2,7 @@
 
 ## php test file for assignment 1
 
-# Assignment 2: Review and Fix Notes
+# Assignment 2: Review and AI usage notes
 
 **Project:** `uxid232_qbk23/alpha`
 **Date:** 2026-10-08
