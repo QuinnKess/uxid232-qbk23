@@ -86,3 +86,30 @@
 
 - `beta/` and `final/` folders are still empty (expected for this stage).
 - Submitted data is validated but not saved or sent anywhere yet.
+
+## Goal
+
+Make the recipe submission form look nicer while keeping it simple, using [matteprojects.com](https://matteprojects.com) as the style reference.
+
+## What changed
+
+### `index.php`
+- Added Google Fonts: **Inter Tight** (sans-serif) and **Instrument Serif** (italic accent). Matte's exact fonts aren't public, so these are close free matches.
+- Added a header with "IDM 232" and "Quinn Kessler".
+- Added a bracketed `[ Assignment 2 ]` label and a large heading, "Forms and *User Input*", with the last two words in italic serif.
+- Added a footer with "Assignment 2 — Forms and User Input" and "Drexel University".
+- Cleaned up labels (removed colons and `<br>` tags).
+- Page title changed to "Recipe Submission | IDM 232".
+- PHP logic (validation, escaping, `post_value()`) is unchanged.
+
+### `style.css`
+- Dark theme: near-black background, off-white text, muted gray for secondary text.
+- Small uppercase, letter-spaced text for the header, footer, labels and button.
+- Underline-only text inputs that brighten on focus.
+- Rounded outline Submit button that fills in on hover.
+- Error and success messages restyled for the dark background.
+
+## Verification
+- `php -l index.php`: no syntax errors.
+- Both files were written directly to `/Applications/MAMP/htdocs/uxid232_qbk23/alpha/`.
+- `NOTES.md` was left unchanged.
