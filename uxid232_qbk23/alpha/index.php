@@ -27,6 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if ($name === '') {
     $errors[] = 'Recipe name is required.';
+  } elseif (mb_strlen($name) > 100) {
+    $errors[] = 'Recipe name must be 100 characters or fewer.';
   }
 
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -46,50 +48,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Recipe Submission</title>
+  <title>Recipe Submission | IDM 232</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<?php if (!empty($errors)): ?>
-  <ul class="errors">
-    <?php foreach ($errors as $error): ?>
-      <li><?= e($error) ?></li>
-    <?php endforeach; ?>
-  </ul>
-<?php endif; ?>
+<header class="site-header">
+  <span>IDM 232</span>
+  <span>Quinn Kessler</span>
+</header>
 
-<?php if ($success): ?>
-  <p class="success">Thanks, <?= e($name) ?> was submitted.</p>
-<?php endif; ?>
+<main>
 
-<form method="POST">
+  <p class="eyebrow">[ Assignment 2 ]</p>
+  <h1>Forms and <em>User Input</em></h1>
 
-  <label for="name">Recipe name:</label>
-  <input
-    type="text"
-    id="name"
-    name="name"
-    value="<?= e($name) ?>"
-  >
+  <?php if (!empty($errors)): ?>
+    <ul class="errors">
+      <?php foreach ($errors as $error): ?>
+        <li><?= e($error) ?></li>
+      <?php endforeach; ?>
+    </ul>
+  <?php endif; ?>
 
-  <br>
+  <?php if ($success): ?>
+    <p class="success">Thanks, <?= e($name) ?> was submitted.</p>
+  <?php endif; ?>
 
-  <label for="email">Email:</label>
-  <input
-    type="email"
-    id="email"
-    name="email"
-    value="<?= e($email) ?>"
-  >
+  <form method="POST">
 
-  <br>
+    <label for="name">Recipe name</label>
+    <input
+      type="text"
+      id="name"
+      name="name"
+      value="<?= e($name) ?>"
+    >
 
-  <input type="submit" value="Submit">
+    <label for="email">Email</label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      value="<?= e($email) ?>"
+    >
 
-</form>
+    <input type="submit" value="Submit">
+
+  </form>
+
+</main>
+
+<footer class="site-footer">
+  <span>Assignment 2 — Forms and User Input</span>
+  <span>Drexel University</span>
+</footer>
 
 </body>
 </html>
