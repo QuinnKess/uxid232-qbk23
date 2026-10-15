@@ -202,3 +202,39 @@ main.wide {
   font-size: 1.05rem;
   color: var(--muted);
 }
+
+/* Navigation */
+.site-header {
+  flex-wrap: wrap;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.site-nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current="page"] {
+  color: var(--text);
+}
+
+/* Light mode: same layout, swapped colors */
+body.theme-light {
+  --bg: #f4f1ea;
+  --text: #141414;
+  --muted: #6b6862;
+  --line: #d6d2c9;
+}
+
+body.theme-light .errors {
+  color: #b3261e;
+}
+
+body.theme-light .success {
+  color: #2e7d32;
+}

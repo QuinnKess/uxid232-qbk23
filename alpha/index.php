@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require __DIR__ . '/../theme.php';
+
 function dump(mixed $value): void {
   echo '<pre>';
   var_dump($value);
@@ -57,11 +59,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="theme-<?= e($theme) ?>">
 
 <header class="site-header">
-  <span>IDM 232</span>
-  <span>Quinn Kessler</span>
+  <span>IDM 232 &middot; Quinn Kessler</span>
+  <nav class="site-nav">
+    <a href="index.php" aria-current="page">Form</a>
+    <a href="recipes.php">Recipes</a>
+    <a href="?theme=<?= e($other_theme) ?>"><?= $theme === 'dark' ? 'Light mode' : 'Dark mode' ?></a>
+  </nav>
 </header>
 
 <main>

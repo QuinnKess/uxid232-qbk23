@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require __DIR__ . '/../db.php';
+require __DIR__ . '/../theme.php';
 
 function e(string $value): string {
   return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
@@ -34,11 +35,15 @@ mysqli_free_result($result);
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="theme-<?= e($theme) ?>">
 
 <header class="site-header">
-  <span>IDM 232</span>
-  <span>Quinn Kessler</span>
+  <span>IDM 232 &middot; Quinn Kessler</span>
+  <nav class="site-nav">
+    <a href="index.php">Form</a>
+    <a href="recipes.php" aria-current="page">Recipes</a>
+    <a href="?theme=<?= e($other_theme) ?>"><?= $theme === 'dark' ? 'Light mode' : 'Dark mode' ?></a>
+  </nav>
 </header>
 
 <main class="wide">
