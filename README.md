@@ -113,3 +113,35 @@ Make the recipe submission form look nicer while keeping it simple, using [matte
 - `php -l index.php`: no syntax errors.
 - Both files were written directly to `/Applications/MAMP/htdocs/uxid232_qbk23/alpha/`.
 - `NOTES.md` was left unchanged.
+
+# Assignment 3: Database and recipe list
+
+**Files:** `database/schema.sql`, `db.php`, `config.example.php`, `alpha/recipes.php`
+
+## Setup
+
+1. In phpMyAdmin, create a database named `idm232_cookbook` (collation `utf8mb4_unicode_ci`).
+2. Import `database/schema.sql` into it.
+3. Copy `config.example.php` to `config.php` and add your database login. `config.php` is gitignored.
+4. Open `http://localhost:8888/uxid232_qbk23/alpha/recipes.php`.
+
+## What it does
+
+- `schema.sql` creates the `recipes` table (primary key `recipe_id`) and related tables, seeded with 40 recipes.
+- `db.php` connects with mysqli in exception mode.
+- `recipes.php` lists every recipe with its photo, category and servings. Every value is escaped with `htmlspecialchars`.
+
+The query on `recipes.php`:
+
+```sql
+SELECT recipe_id, title, subtitle, category, servings, main_image
+FROM recipes
+ORDER BY title
+```
+
+It returns one row per recipe (40 rows), sorted A to Z by title. It takes no user input, so a plain `mysqli_query` is used.
+
+## AI use
+
+- The recipe data came from the professor's PDFs. Parts cut off at page breaks were filled in with AI: 135 ingredient lines, 71 step titles, 18 whole steps, one description and the tools for 3 recipes. AI ingredient quantities are estimates.
+- AI helped write `schema.sql`, `db.php` and `recipes.php`, and tested the import and page against MySQL.
