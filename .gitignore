@@ -1,0 +1,5 @@
+# Database login (copy config.example.php to config.php)
+config.php
+
+# macOS
+.DS_Store
