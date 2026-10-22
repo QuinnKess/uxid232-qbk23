@@ -23,8 +23,8 @@ A cookbook web app built with PHP and MySQL. It stores 40 recipes in a relationa
 | `database/schema.sql` | Creates all tables and seeds 6 categories and 40 recipes. Every table has an `AUTO_INCREMENT` primary key. `recipes.category_id` is a foreign key to `categories`, and the other tables link to `recipes` by `recipe_id`. |
 | `db.php` | Connects with mysqli in exception mode (`MYSQLI_REPORT_ERROR \| MYSQLI_REPORT_STRICT`). |
 | `config.example.php` | Template for `config.php`, which holds the database login and is gitignored. |
-| `recipe_queries.php` | Database read functions, such as `recipes_with_category()`. |
-| `alpha/recipes.php` | Recipe list page, read from the database. |
+| `recipe_queries.php` | Database read functions: `recipes_with_category()`, `recipes_in_category()` and `categories_with_counts()`. |
+| `alpha/recipes.php` | Recipe list page, read from the database, with links to filter by category. |
 | `alpha/index.php` | Recipe submission form with server-side validation (week 2). |
 | `theme.php` | Light/dark mode toggle. Only accepts `light` or `dark`. |
 | `alpha/images/` | Recipe photos. Paths are stored in the database. |
@@ -32,7 +32,8 @@ A cookbook web app built with PHP and MySQL. It stores 40 recipes in a relationa
 ## Data access and security
 
 - The recipe list calls `recipes_with_category()`, which uses an `INNER JOIN` to return one row per recipe with its category name, sorted by title. It takes no user input, so it uses `mysqli_query`.
-- Any query that uses a value from the user will use a prepared statement with bound parameters.
+- The category links (`recipes.php?category=2`) send a value from the user. The page first checks it is a whole number of 1 or more with `filter_input(..., FILTER_VALIDATE_INT)`, then `recipes_in_category()` passes it to SQL only through a `?` placeholder with `mysqli_execute_query`. Anything invalid shows all recipes.
+- The category links show recipe counts from `categories_with_counts()`, which uses a `LEFT JOIN` with `COUNT` and `GROUP BY`.
 - Every value written to the page is escaped with `htmlspecialchars`.
 - Database errors are caught, logged with `error_log`, and replaced with a generic message, so error details never reach the page.
 - Every PHP file starts with `declare(strict_types=1);`.
