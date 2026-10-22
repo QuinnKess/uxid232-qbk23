@@ -4,7 +4,7 @@
 
 ## What is this project?
 
-A cookbook web app built with PHP and MySQL. It stores 40 recipes in a relational database (recipes with their ingredients, steps, tools, tips and photos) and shows them on a recipe list page. By the final, users will be able to browse every recipe, search and filter by category, open a full recipe page with its ingredients and step-by-step instructions, and add or edit recipes through validated forms.
+A cookbook web app built with PHP and MySQL. It stores 40 recipes in a relational database (categories, recipes, and each recipe's ingredients, steps, tools, tips and photos) and shows them on a recipe list page. By the final, users will be able to browse every recipe, search and filter by category, open a full recipe page with its ingredients and step-by-step instructions, and add or edit recipes through validated forms.
 
 ## How do I run it locally?
 
@@ -20,9 +20,10 @@ A cookbook web app built with PHP and MySQL. It stores 40 recipes in a relationa
 
 | Path | What it is |
 |------|------------|
-| `database/schema.sql` | Creates all tables and seeds 40 recipes. `recipes.recipe_id` is an `AUTO_INCREMENT` primary key; the other tables link to it with foreign keys. |
+| `database/schema.sql` | Creates all tables and seeds 6 categories and 40 recipes. Every table has an `AUTO_INCREMENT` primary key. `recipes.category_id` is a foreign key to `categories`, and the other tables link to `recipes` by `recipe_id`. |
 | `db.php` | Connects with mysqli in exception mode (`MYSQLI_REPORT_ERROR \| MYSQLI_REPORT_STRICT`). |
 | `config.example.php` | Template for `config.php`, which holds the database login and is gitignored. |
+| `recipe_queries.php` | Database read functions, such as `recipes_with_category()`. |
 | `alpha/recipes.php` | Recipe list page, read from the database. |
 | `alpha/index.php` | Recipe submission form with server-side validation (week 2). |
 | `theme.php` | Light/dark mode toggle. Only accepts `light` or `dark`. |
@@ -30,9 +31,10 @@ A cookbook web app built with PHP and MySQL. It stores 40 recipes in a relationa
 
 ## Data access and security
 
-- The recipe list runs `SELECT recipe_id, title, subtitle, category, servings, main_image FROM recipes ORDER BY title`, which returns one row per recipe sorted by title. It takes no user input, so it uses `mysqli_query`.
+- The recipe list calls `recipes_with_category()`, which uses an `INNER JOIN` to return one row per recipe with its category name, sorted by title. It takes no user input, so it uses `mysqli_query`.
 - Any query that uses a value from the user will use a prepared statement with bound parameters.
 - Every value written to the page is escaped with `htmlspecialchars`.
+- Database errors are caught, logged with `error_log`, and replaced with a generic message, so error details never reach the page.
 - Every PHP file starts with `declare(strict_types=1);`.
 
 ## AI use
