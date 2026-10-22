@@ -19,7 +19,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- One row per recipe. slug is the URL name and image folder name.
 CREATE TABLE recipes (
-  recipe_id         INT UNSIGNED NOT NULL,
+  recipe_id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
   slug              VARCHAR(100) NOT NULL,
   title             VARCHAR(150) NOT NULL,
   subtitle          VARCHAR(150) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE recipes (
 
 -- One row per ingredient line. ORDER BY sort_order.
 CREATE TABLE ingredients (
-  ingredient_id INT UNSIGNED NOT NULL,
+  ingredient_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
   recipe_id     INT UNSIGNED NOT NULL,
   sort_order    TINYINT UNSIGNED NOT NULL,
   quantity      VARCHAR(20)  NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE ingredients (
 
 -- One row per cooking step. ORDER BY step_number.
 CREATE TABLE steps (
-  step_id      INT UNSIGNED NOT NULL,
+  step_id      INT UNSIGNED NOT NULL AUTO_INCREMENT,
   recipe_id    INT UNSIGNED NOT NULL,
   step_number  TINYINT UNSIGNED NOT NULL,
   step_title   VARCHAR(150) NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE steps (
 
 -- Each kitchen tool once.
 CREATE TABLE tools (
-  tool_id     INT UNSIGNED NOT NULL,
+  tool_id     INT UNSIGNED NOT NULL AUTO_INCREMENT,
   name        VARCHAR(100) NOT NULL,
   brand       VARCHAR(100) NULL,
   description TEXT NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE recipe_tools (
 
 -- At most one tip per recipe. tip_type is how_to or ingredient_spotlight.
 CREATE TABLE tips (
-  tip_id    INT UNSIGNED NOT NULL,
+  tip_id    INT UNSIGNED NOT NULL AUTO_INCREMENT,
   recipe_id INT UNSIGNED NOT NULL,
   tip_title VARCHAR(150) NOT NULL,
   tip_text  TEXT NOT NULL,
@@ -110,7 +110,7 @@ CREATE TABLE tips (
 
 -- Every picture the site uses. recipe_id is empty for shared tool photos.
 CREATE TABLE images (
-  image_id      INT UNSIGNED NOT NULL,
+  image_id      INT UNSIGNED NOT NULL AUTO_INCREMENT,
   recipe_id     INT UNSIGNED NULL,
   type          VARCHAR(30)  NOT NULL,
   step_number   TINYINT UNSIGNED NULL,
