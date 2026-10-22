@@ -40,5 +40,12 @@ A cookbook web app built with PHP and MySQL. It stores 40 recipes in a relationa
 
 ## AI use
 
-- **Recipe data:** the recipes came from the professor's PDFs. Content cut off at page breaks was filled in with AI: 135 ingredient lines, 71 step titles, 18 whole steps, one description and the tools for 3 recipes. AI ingredient quantities are estimates.
-- **Code:** AI (Claude) helped review and fix the week 2 form, style the pages, write `schema.sql`, `db.php`, `recipes.php` and `theme.php`, and test the database import and pages.
+**AI tools used: Claude (Anthropic).** No other AI tools were used.
+
+How Claude was used:
+
+- **Recipe data:** turned the professor's recipe PDFs into the spreadsheet behind `schema.sql`, and filled in content cut off at page breaks: 135 ingredient lines, 71 step titles, 18 whole steps, one description and the tools for 3 recipes. AI ingredient quantities are estimates.
+- **Database:** converted the spreadsheet into `schema.sql`, and added the `categories` table, foreign keys and `AUTO_INCREMENT` keys.
+- **Code:** reviewed and fixed the week 2 form, and wrote `db.php`, `recipe_queries.php`, `recipes.php` (including the category filter), `theme.php` and the CSS.
+- **Testing:** test-imported the schema into MySQL and checked the pages, including invalid and malicious input on the category filter.
+- **Learning and setup:** explained the code and concepts, walked through phpMyAdmin and git commands, and helped write this README.
