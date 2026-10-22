@@ -1,22 +1,27 @@
 <?php
 declare(strict_types=1);
 
-require __DIR__ . '/../db.php';
 require __DIR__ . '/../theme.php';
+require __DIR__ . '/../recipe_queries.php';
 
 function e(string $value): string {
   return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
-// List-all query: takes no user input, so a plain mysqli_query is safe here.
-// Returns one row per recipe (40 rows), sorted A to Z by title.
-$sql = 'SELECT recipe_id, title, subtitle, category, servings, main_image
-        FROM recipes
-        ORDER BY title';
+// Load every recipe with its category name (see recipe_queries.php).
+// If the database fails, log the real error privately and show the
+// visitor a generic message, so table names never leak onto the page.
+$recipes = [];
+$load_failed = false;
 
-$result = mysqli_query($db, $sql);
-$recipes = mysqli_fetch_all($result, MYSQLI_ASSOC);
-mysqli_free_result($result);
+try {
+  require __DIR__ . '/../db.php';
+  $recipes = recipes_with_category($db);
+} catch (mysqli_sql_exception $error) {
+  error_log($error->getMessage());
+  http_response_code(500);
+  $load_failed = true;
+}
 
 ?>
 
@@ -52,6 +57,10 @@ mysqli_free_result($result);
   <h1>Recipes from the <em>Database</em></h1>
 
   <p class="count"><?= count($recipes) ?> recipes</p>
+
+  <?php if ($load_failed): ?>
+    <p class="errors">The recipes couldn't be loaded. Please try again later.</p>
+  <?php endif; ?>
 
   <ul class="recipe-grid">
     <?php foreach ($recipes as $recipe): ?>
