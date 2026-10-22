@@ -1,147 +1,41 @@
-# uxid241-qbk23
+# Cookbook — IDM 232
 
-## php test file for assignment 1
+**Quinn Kessler** · Drexel University · Fall 2026
 
-# Assignment 2: Review and AI usage notes
+## What is this project?
 
-**Project:** `uxid232_qbk23/alpha`
-**Date:** 2026-10-08
-**Files:** `index.php`, `style.css`
+A cookbook web app built with PHP and MySQL. It stores 40 recipes in a relational database (recipes with their ingredients, steps, tools, tips and photos) and shows them on a recipe list page. By the final, users will be able to browse every recipe, search and filter by category, open a full recipe page with its ingredients and step-by-step instructions, and add or edit recipes through validated forms.
 
-## 1. What was checked
+## How do I run it locally?
 
-- **Location:** `alpha/index.php` is served by MAMP at `http://localhost:8888/uxid232_qbk23/alpha/` and returns HTTP 200.
-- **Syntax:** `php -l` (PHP 8.5.2) found no syntax errors.
-- **Form behavior:** tested by sending POST requests to the running server:
-  - valid input (`Pasta` / `a@b.com`)
-  - invalid input (empty name, `bad` email)
-  - an HTML/script injection attempt (`"><script>…`)
-  - malformed input (`name[]=x`, which sends an array instead of a string)
-- **Assets:** checked that the linked `style.css` loads.
+1. Install **XAMPP** or **MAMP** and start Apache and MySQL.
+2. Put this project folder inside your `htdocs` folder (XAMPP: `xampp/htdocs`, MAMP: `MAMP/htdocs`).
+3. Open phpMyAdmin, create a database named `idm232_cookbook` with collation `utf8mb4_unicode_ci`, then use the **Import** tab to load `database/schema.sql`.
+4. Make a copy of `config.example.php` in the same folder, name it `config.php`, and fill in your database login. Usual defaults: XAMPP is port `3306`, user `root`, empty password; MAMP is port `8889`, user `root`, password `root`.
+5. Open the recipe list in your browser, using your project folder's name:
+   - XAMPP: `http://localhost/<project-folder>/alpha/recipes.php`
+   - MAMP: `http://localhost:8888/<project-folder>/alpha/recipes.php`
 
-## 2. What already worked
+## What's in the repo
 
-- Validation logic was correct: valid input passed, invalid input produced both error messages.
-- Entered values stayed in the form after submit.
-- Output escaping with `htmlspecialchars` (the `e()` helper) correctly neutralized the injection attempt.
+| Path | What it is |
+|------|------------|
+| `database/schema.sql` | Creates all tables and seeds 40 recipes. `recipes.recipe_id` is an `AUTO_INCREMENT` primary key; the other tables link to it with foreign keys. |
+| `db.php` | Connects with mysqli in exception mode (`MYSQLI_REPORT_ERROR \| MYSQLI_REPORT_STRICT`). |
+| `config.example.php` | Template for `config.php`, which holds the database login and is gitignored. |
+| `alpha/recipes.php` | Recipe list page, read from the database. |
+| `alpha/index.php` | Recipe submission form with server-side validation (week 2). |
+| `theme.php` | Light/dark mode toggle. Only accepts `light` or `dark`. |
+| `alpha/images/` | Recipe photos. Paths are stored in the database. |
 
-## 3. Problems found
+## Data access and security
 
-| # | Problem | Impact |
-|---|---------|--------|
-| 1 | `style.css` was linked but did not exist | 404 error; page unstyled |
-| 2 | Errors and success state were never displayed in the HTML | User got no feedback once debug output was removed |
-| 3 | `dump()` debug calls printed before `<!DOCTYPE html>` | Invalid HTML; debug output visible to users |
-| 4 | `post_value()` passed arrays straight to `trim()` | Sending `name[]=x` caused a fatal `TypeError` |
-| 5 | Label said "Name:" but the error said "Recipe name"; title was "Document" | Inconsistent wording |
-
-## 4. Fixes applied
-
-### `index.php`
-
-- **Hardened input helper:** non-string values are treated as empty:
-  ```php
-  function post_value(string $key): string {
-    $value = $_POST[$key] ?? '';
-    return is_string($value) ? trim($value) : '';
-  }
-  ```
-- **Removed debug output:** deleted the four `dump()` calls. The `dump()` function itself is kept for future debugging.
-- **Added an error list** above the form, shown only when validation fails:
-  ```php
-  <?php if (!empty($errors)): ?>
-    <ul class="errors">
-      <?php foreach ($errors as $error): ?>
-        <li><?= e($error) ?></li>
-      <?php endforeach; ?>
-    </ul>
-  <?php endif; ?>
-  ```
-- **Added a success message**, shown only on a valid submission:
-  ```php
-  <?php if ($success): ?>
-    <p class="success">Thanks, <?= e($name) ?> was submitted.</p>
-  <?php endif; ?>
-  ```
-- **Wording:** label changed to "Recipe name:"; page title changed to "Recipe Submission".
-
-### `style.css` (new)
-
-- Basic layout: centered column, full-width inputs, spacing.
-- `.errors`: red text on a light red background.
-- `.success`: green text on a light green background.
-
-## 5. Verification after fixes
-
-| Test | Result |
-|------|--------|
-| PHP syntax check | No errors |
-| First page load (GET) | No error or success message shown |
-| Valid submission | "Thanks, Pasta was submitted." |
-| Empty name + bad email | Both error messages listed |
-| `name[]=x` | Shows "Recipe name is required." (no crash) |
-| `style.css` | Loads (HTTP 200) |
-
-## 6. Open items
-
-- `beta/` and `final/` folders are still empty (expected for this stage).
-- Submitted data is validated but not saved or sent anywhere yet.
-
-## Goal
-
-Make the recipe submission form look nicer while keeping it simple, using [matteprojects.com](https://matteprojects.com) as the style reference.
-
-## What changed
-
-### `index.php`
-- Added Google Fonts: **Inter Tight** (sans-serif) and **Instrument Serif** (italic accent). Matte's exact fonts aren't public, so these are close free matches.
-- Added a header with "IDM 232" and "Quinn Kessler".
-- Added a bracketed `[ Assignment 2 ]` label and a large heading, "Forms and *User Input*", with the last two words in italic serif.
-- Added a footer with "Assignment 2 — Forms and User Input" and "Drexel University".
-- Cleaned up labels (removed colons and `<br>` tags).
-- Page title changed to "Recipe Submission | IDM 232".
-- PHP logic (validation, escaping, `post_value()`) is unchanged.
-
-### `style.css`
-- Dark theme: near-black background, off-white text, muted gray for secondary text.
-- Small uppercase, letter-spaced text for the header, footer, labels and button.
-- Underline-only text inputs that brighten on focus.
-- Rounded outline Submit button that fills in on hover.
-- Error and success messages restyled for the dark background.
-
-## Verification
-- `php -l index.php`: no syntax errors.
-- Both files were written directly to `/Applications/MAMP/htdocs/uxid232_qbk23/alpha/`.
-- `NOTES.md` was left unchanged.
-
-# Assignment 3: Database and recipe list
-
-**Files:** `database/schema.sql`, `db.php`, `config.example.php`, `alpha/recipes.php`
-
-## Setup
-
-1. In phpMyAdmin, create a database named `idm232_cookbook` (collation `utf8mb4_unicode_ci`).
-2. Import `database/schema.sql` into it.
-3. Copy `config.example.php` to `config.php` and add your database login. `config.php` is gitignored.
-4. Open `http://localhost:8888/uxid232_qbk23/alpha/recipes.php`.
-
-## What it does
-
-- `schema.sql` creates the `recipes` table (primary key `recipe_id`) and related tables, seeded with 40 recipes.
-- `db.php` connects with mysqli in exception mode.
-- `recipes.php` lists every recipe with its photo, category and servings. Every value is escaped with `htmlspecialchars`.
-
-The query on `recipes.php`:
-
-```sql
-SELECT recipe_id, title, subtitle, category, servings, main_image
-FROM recipes
-ORDER BY title
-```
-
-It returns one row per recipe (40 rows), sorted A to Z by title. It takes no user input, so a plain `mysqli_query` is used.
+- The recipe list runs `SELECT recipe_id, title, subtitle, category, servings, main_image FROM recipes ORDER BY title`, which returns one row per recipe sorted by title. It takes no user input, so it uses `mysqli_query`.
+- Any query that uses a value from the user will use a prepared statement with bound parameters.
+- Every value written to the page is escaped with `htmlspecialchars`.
+- Every PHP file starts with `declare(strict_types=1);`.
 
 ## AI use
 
-- The recipe data came from the professor's PDFs. Parts cut off at page breaks were filled in with AI: 135 ingredient lines, 71 step titles, 18 whole steps, one description and the tools for 3 recipes. AI ingredient quantities are estimates.
-- AI helped write `schema.sql`, `db.php` and `recipes.php`, and tested the import and page against MySQL.
+- **Recipe data:** the recipes came from the professor's PDFs. Content cut off at page breaks was filled in with AI: 135 ingredient lines, 71 step titles, 18 whole steps, one description and the tools for 3 recipes. AI ingredient quantities are estimates.
+- **Code:** AI (Claude) helped review and fix the week 2 form, style the pages, write `schema.sql`, `db.php`, `recipes.php` and `theme.php`, and test the database import and pages.
