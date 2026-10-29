@@ -3,3 +3,6 @@ config.php
 
 # macOS
 .DS_Store
+
+# Local database exports from phpMyAdmin (database/schema.sql is the real one)
+idm232_cookbook*.sql
