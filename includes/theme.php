@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 // Light / dark mode.
+// Written with help from Claude (AI). See README, "AI use".
 // The choice comes from the ?theme= link or a saved cookie. Both come from
 // the user, so only the two allowed values are accepted.
 

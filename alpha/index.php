@@ -1,21 +1,17 @@
 <?php
 declare(strict_types=1);
 
-require __DIR__ . '/../theme.php';
+// Recipe submission form with server-side validation (week 2).
+// Reviewed, fixed and styled with help from Claude (AI). See README, "AI use".
 
-function dump(mixed $value): void {
-  echo '<pre>';
-  var_dump($value);
-  echo '</pre>';
-}
+require __DIR__ . '/../includes/helpers.php';
+require __DIR__ . '/../includes/theme.php';
 
+// Read a POST field as trimmed text. Anything that is not a string
+// (for example name[]=x, which sends an array) counts as empty.
 function post_value(string $key): string {
   $value = $_POST[$key] ?? '';
   return is_string($value) ? trim($value) : '';
-}
-
-function e(string $value): string {
-  return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
 $name = '';
@@ -42,35 +38,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
+$page_title = 'Recipe Submission';
+$current_page = 'form';
+$footer_label = 'Assignment 2 — Forms and User Input';
+
+require __DIR__ . '/../templates/header.php';
+
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Recipe Submission | IDM 232</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="style.css?v=<?= filemtime(__DIR__ . '/style.css') ?>">
-</head>
-
-<body class="theme-<?= e($theme) ?>">
-
-<header class="site-header">
-  <span>IDM 232 &middot; Quinn Kessler</span>
-  <nav class="site-nav">
-    <a href="index.php" aria-current="page">Form</a>
-    <a href="recipes.php">Recipes</a>
-    <a href="?theme=<?= e($other_theme) ?>"><?= $theme === 'dark' ? 'Light mode' : 'Dark mode' ?></a>
-  </nav>
-</header>
-
-<main>
 
   <p class="eyebrow">[ Assignment 2 ]</p>
   <h1>Forms and <em>User Input</em></h1>
@@ -109,12 +83,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   </form>
 
-</main>
-
-<footer class="site-footer">
-  <span>Assignment 2 — Forms and User Input</span>
-  <span>Drexel University</span>
-</footer>
-
-</body>
-</html>
+<?php require __DIR__ . '/../templates/footer.php'; ?>
