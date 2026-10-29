@@ -1,16 +1,20 @@
 <?php
 declare(strict_types=1);
 
-require __DIR__ . '/../theme.php';
-require __DIR__ . '/../recipe_queries.php';
+// Recipe library: browse, search and filter by category.
+// Written with help from Claude (AI). See README, "AI use".
 
-function e(string $value): string {
-  return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
-}
+require __DIR__ . '/../includes/helpers.php';
+require __DIR__ . '/../includes/theme.php';
+require __DIR__ . '/../includes/recipe_queries.php';
 
-// Which category the visitor clicked, from a link like recipes.php?category=2.
-// This is user input, so it must be a whole number of 1 or more.
-// Anything else (missing, text, negative) gives false or null: show all.
+// Search words from the search box (?q=garlic). User input: must be text,
+// trimmed and capped at 100 characters. Anything else counts as no search.
+$raw_search = $_GET['q'] ?? '';
+$search = is_string($raw_search) ? mb_substr(trim($raw_search), 0, 100) : '';
+
+// Category from a filter link (?category=2). User input: must be a whole
+// number of 1 or more. Anything else (text, negative, missing) shows all.
 $requested_id = filter_input(INPUT_GET, 'category', FILTER_VALIDATE_INT, [
   'options' => ['min_range' => 1],
 ]);
@@ -18,13 +22,14 @@ $requested_id = filter_input(INPUT_GET, 'category', FILTER_VALIDATE_INT, [
 $recipes = [];
 $categories = [];
 $selected_category = null;
+$selected_id = null;
 $load_failed = false;
 
-// Load the data (see recipe_queries.php). If the database fails, log the
-// real error privately and show the visitor a generic message, so table
-// names never leak onto the page.
+// Load the data (see includes/recipe_queries.php). If the database fails,
+// log the real error privately and show a generic message, so table names
+// never leak onto the page.
 try {
-  require __DIR__ . '/../db.php';
+  require __DIR__ . '/../includes/db.php';
 
   $categories = categories_with_counts($db);
 
@@ -35,60 +40,65 @@ try {
     }
   }
 
-  if ($selected_category !== null) {
-    $recipes = recipes_in_category($db, $requested_id);
-  } else {
-    $recipes = recipes_with_category($db);
-  }
+  $selected_id = $selected_category !== null ? (int) $selected_category['category_id'] : null;
+  $recipes = find_recipes($db, $search, $selected_id);
 } catch (mysqli_sql_exception $error) {
   error_log($error->getMessage());
   http_response_code(500);
   $load_failed = true;
 }
 
-$selected_id = $selected_category !== null ? (int) $selected_category['category_id'] : null;
 $total_recipes = array_sum(array_column($categories, 'recipe_count'));
+
+// Sentence above the grid, for example: 3 recipes matching "garlic" in Chicken.
+$result_count = count($recipes);
+$summary = $result_count . ' ' . ($result_count === 1 ? 'recipe' : 'recipes');
+if ($search !== '') {
+  $summary .= ' matching "' . $search . '"';
+}
+if ($selected_category !== null) {
+  $summary .= ' in ' . $selected_category['name'];
+}
+
+$page_title = 'Recipes';
+$current_page = 'recipes';
+$page_params = ['q' => $search, 'category' => $selected_id];
+$main_class = 'wide';
+$footer_label = 'Week 5 — Recipe library';
+
+require __DIR__ . '/../templates/header.php';
 
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Recipes | IDM 232</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="style.css?v=<?= filemtime(__DIR__ . '/style.css') ?>">
-</head>
-
-<body class="theme-<?= e($theme) ?>">
-
-<header class="site-header">
-  <span>IDM 232 &middot; Quinn Kessler</span>
-  <nav class="site-nav">
-    <a href="index.php">Form</a>
-    <a href="recipes.php" aria-current="page">Recipes</a>
-    <a href="?<?= e(http_build_query(['category' => $selected_id, 'theme' => $other_theme])) ?>"><?= $theme === 'dark' ? 'Light mode' : 'Dark mode' ?></a>
-  </nav>
-</header>
-
-<main class="wide">
-
-  <p class="eyebrow">[ Assignment 3 ]</p>
+  <p class="eyebrow">[ Recipe library ]</p>
   <h1>Recipes from the <em>Database</em></h1>
 
+  <form class="search-form" action="recipes.php" method="get" role="search">
+    <label for="q" class="visually-hidden">Search recipes</label>
+    <input
+      type="search"
+      id="q"
+      name="q"
+      value="<?= e($search) ?>"
+      placeholder="Search by name or ingredient"
+      maxlength="100"
+    >
+    <?php if ($selected_id !== null): ?>
+      <input type="hidden" name="category" value="<?= e((string) $selected_id) ?>">
+    <?php endif; ?>
+    <button type="submit">Search</button>
+    <?php if ($search !== ''): ?>
+      <a class="clear-search" href="<?= e(page_link('recipes.php', ['category' => $selected_id])) ?>">Clear</a>
+    <?php endif; ?>
+  </form>
+
   <nav class="category-links" aria-label="Filter recipes by category">
-    <a href="recipes.php"<?= $selected_id === null ? ' aria-current="page"' : '' ?>>
+    <a href="<?= e(page_link('recipes.php', ['q' => $search])) ?>"<?= $selected_id === null ? ' aria-current="page"' : '' ?>>
       All <span class="link-count"><?= e((string) $total_recipes) ?></span>
     </a>
     <?php foreach ($categories as $category): ?>
       <a
-        href="recipes.php?category=<?= e((string) $category['category_id']) ?>"
+        href="<?= e(page_link('recipes.php', ['q' => $search, 'category' => (int) $category['category_id']])) ?>"
         <?= (int) $category['category_id'] === $selected_id ? 'aria-current="page"' : '' ?>
       >
         <?= e($category['name']) ?> <span class="link-count"><?= e((string) $category['recipe_count']) ?></span>
@@ -96,37 +106,36 @@ $total_recipes = array_sum(array_column($categories, 'recipe_count'));
     <?php endforeach; ?>
   </nav>
 
-  <p class="count">
-    <?= count($recipes) ?> <?= count($recipes) === 1 ? 'recipe' : 'recipes' ?><?php if ($selected_category !== null): ?> in <?= e($selected_category['name']) ?><?php endif; ?>
-  </p>
-
   <?php if ($load_failed): ?>
     <p class="errors">The recipes couldn't be loaded. Please try again later.</p>
+  <?php else: ?>
+    <p class="count"><?= e($summary) ?></p>
+  <?php endif; ?>
+
+  <?php if (!$load_failed && $recipes === []): ?>
+    <p class="empty-state">
+      No recipes found. Try a different word or
+      <a href="recipes.php">see all recipes</a>.
+    </p>
   <?php endif; ?>
 
   <ul class="recipe-grid">
     <?php foreach ($recipes as $recipe): ?>
       <li class="recipe-card">
-        <img
-          src="<?= e($recipe['main_image']) ?>"
-          alt="<?= e($recipe['title']) ?>"
-          loading="lazy"
-        >
-        <p class="recipe-meta">
-          <?= e($recipe['category']) ?> &middot; Serves <?= e((string) $recipe['servings']) ?>
-        </p>
-        <h2><?= e($recipe['title']) ?></h2>
-        <p class="recipe-subtitle"><?= e($recipe['subtitle']) ?></p>
+        <a class="recipe-link" href="<?= e(page_link('recipe.php', ['id' => (int) $recipe['recipe_id']])) ?>">
+          <img
+            src="<?= e($recipe['main_image']) ?>"
+            alt="<?= e($recipe['title']) ?>"
+            loading="lazy"
+          >
+          <p class="recipe-meta">
+            <?= e($recipe['category']) ?> &middot; Serves <?= e((string) $recipe['servings']) ?>
+          </p>
+          <h2><?= e($recipe['title']) ?></h2>
+          <p class="recipe-subtitle"><?= e($recipe['subtitle']) ?></p>
+        </a>
       </li>
     <?php endforeach; ?>
   </ul>
 
-</main>
-
-<footer class="site-footer">
-  <span>Assignment 3 — Databases and mysqli</span>
-  <span>Drexel University</span>
-</footer>
-
-</body>
-</html>
+<?php require __DIR__ . '/../templates/footer.php'; ?>
